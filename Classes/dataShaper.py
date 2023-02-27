@@ -13,7 +13,6 @@ def roundTimestamp(data, order):
     data['timestamp'] = data['timestamp'].apply(lambda x: round(float(str(x)[:13]) / order) * order)
     return data
 
-
 def retrieveContinuousSeries(data, length, deltaTime):
     timeSeries = []
     IDs = np.unique(data['ue_ident'])
@@ -22,26 +21,27 @@ def retrieveContinuousSeries(data, length, deltaTime):
         measures = roundTimestamp(measures, deltaTime)
 
         index = 0
-        while index < len(measures):
-        # for index in range(0, len(measures)):
-            skip = 0
+        while index + length <= len(measures):
             sample = []
-            if index + length < len(measures):
-                for i in range(0, length):
-                    previous = measures.iloc[index+i:index+i+1]
-                    follow = measures.iloc[index+i+1:index+i+2]
-                    if follow['timestamp'].values[0] == previous['timestamp'].values[0] + deltaTime:
-                        sample.append(follow)
-                    else:
-                        skip = i
-                        break
-            if len(sample) == length:
-                timeSeries.append(sample)
-                index += (length - 1)
-            else:
-                if skip != 0:
-                    index += skip
+
+            start = measures.iloc[index:index+1]
+            sample.append(start)
+
+            skip = 1
+            i = index
+            while i <= len(measures):
+                previous = measures.iloc[i:i+1]
+                follow = measures.iloc[i+1:i+2]
+                if follow['timestamp'].values[0] == previous['timestamp'].values[0] + deltaTime:
+                    sample.append(follow)
                 else:
-                    index += 1
+                    index += skip
+                    break
+                if len(sample) == length:
+                    timeSeries.append(sample)
+                    index += length
+                    break
+                skip += 1
+                i += 1
 
     return timeSeries
