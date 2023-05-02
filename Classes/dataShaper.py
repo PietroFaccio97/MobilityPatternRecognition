@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
+#TODO -> convert to class with empty constructor and static methods
+
 def scale(data):
     scaler = MinMaxScaler()
     return scaler.fit_transform(data)
@@ -18,7 +20,7 @@ def retrieveContinuousSeries(data, length, deltaTime):
     IDs = np.unique(data['ue_ident'])
     for ID in IDs:
         measures = pd.DataFrame(data.loc[data['ue_ident'] == ID])
-        measures = roundTimestamp(measures, deltaTime)
+        #measures = roundTimestamp(measures, deltaTime)
 
         index = 0
         while index + length <= len(measures):

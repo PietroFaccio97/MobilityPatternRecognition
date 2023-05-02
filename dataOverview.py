@@ -12,7 +12,11 @@ columns = ['ue_ident', 'timestamp', 'phy_ul_pucch_rssi', 'phy_ul_pucch_rssi']
 ascendingFlags = [True, True, True, True]
 patterns = [Paths.bus, Paths.car, Paths.pedestrian, Paths.static, Paths.train]
 
-reader = DataReader(columns, patterns)
+outlierThresholds = {'bus': {'phy_ul_pucch_rssi': 50}, 'car': {'phy_ul_pucch_rssi': 50}, 'pedestrian': {'phy_ul_pucch_rssi': 20}, 'static': {'phy_ul_pucch_rssi': 50}, 'train': {'phy_ul_pucch_rssi': 35}}
+# outlierThresholds = {'phy_ul_pucch_rssi': 7000} #Tune thresholds for outliers cut off based on the feature
+outliers = ['phy_ul_pucch_rssi']
+
+reader = DataReader(columns, patterns, outliers, outlierThresholds)
 
 bus = reader.retrievePatternData(Paths.bus)
 car = reader.retrievePatternData(Paths.car)
@@ -45,10 +49,10 @@ plt.show()
 
 # Plot samples
 sampleBus = bus[bus['ue_ident'] == list(Counter(bus['ue_ident']).keys())[0]]
-sampleCar = car[car['ue_ident'] == list(Counter(car['ue_ident']).keys())[33]]
-samplePedestrian = pedestrian[pedestrian['ue_ident'] == list(Counter(pedestrian['ue_ident']).keys())[49]]
-sampleStatic = static[static['ue_ident'] == list(Counter(static['ue_ident']).keys())[60]]
-sampleTrain = train[train['ue_ident'] == list(Counter(train['ue_ident']).keys())[27]]
+sampleCar = car[car['ue_ident'] == list(Counter(car['ue_ident']).keys())[0]]
+samplePedestrian = pedestrian[pedestrian['ue_ident'] == list(Counter(pedestrian['ue_ident']).keys())[0]]
+sampleStatic = static[static['ue_ident'] == list(Counter(static['ue_ident']).keys())[0]]
+sampleTrain = train[train['ue_ident'] == list(Counter(train['ue_ident']).keys())[0]]
 
 samples = [sampleBus, sampleCar, samplePedestrian, sampleStatic, sampleTrain]
 titles = ['bus', 'car', 'pedestrian', 'static', 'train']
@@ -82,6 +86,6 @@ sizes = [busSize, carSize, pedestrianSize, staticSize, trainSize]
 
 plt.bar(y_pos, sizes, align='center', alpha=0.5)
 plt.xticks(y_pos, objects)
-plt.ylabel('Number of devices tracked')
+plt.ylabel('Number of measures tracked')
 plt.title('Pattern')
 plt.show()
