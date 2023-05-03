@@ -68,11 +68,17 @@ for index, s in enumerate(samples):
     plt.title(titles[index])
     plt.show()
 
-timeSeriesBus = dataShaper.retrieveContinuousSeries(data=bus, length=5, deltaTime=100)
-timeSeriesCar = dataShaper.retrieveContinuousSeries(data=car, length=5, deltaTime=100)
-timeSeriesPedestrian = dataShaper.retrieveContinuousSeries(data=pedestrian, length=5, deltaTime=100)
-timeSeriesStatic = dataShaper.retrieveContinuousSeries(data=static, length=5, deltaTime=100)
-timeSeriesTrain = dataShaper.retrieveContinuousSeries(data=train, length=5, deltaTime=100)
+#timeSeriesBus = dataShaper.retrieveContinuousSeries(data=bus, length=5, deltaTime=100)
+#timeSeriesCar = dataShaper.retrieveContinuousSeries(data=car, length=5, deltaTime=100)
+#timeSeriesPedestrian = dataShaper.retrieveContinuousSeries(data=pedestrian, length=5, deltaTime=100)
+#timeSeriesStatic = dataShaper.retrieveContinuousSeries(data=static, length=5, deltaTime=100)
+#timeSeriesTrain = dataShaper.retrieveContinuousSeries(data=train, length=5, deltaTime=100)
+
+timeSeriesBus = dataShaper.retrieveSeries(data=bus, length=10)
+timeSeriesCar = dataShaper.retrieveSeries(data=car, length=10)
+timeSeriesPedestrian = dataShaper.retrieveSeries(data=pedestrian, length=10)
+timeSeriesStatic = dataShaper.retrieveSeries(data=static, length=10)
+timeSeriesTrain = dataShaper.retrieveSeries(data=train, length=10)
 
 busSize = len(timeSeriesBus)
 carSize = len(timeSeriesCar)

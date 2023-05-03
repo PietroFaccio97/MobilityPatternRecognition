@@ -11,9 +11,24 @@ def scale(data):
 def sort(data, columnsOrder, ascendingFlags):
     return data.sort_values(columnsOrder, ascending=ascendingFlags, inplace=False)
 
-def roundTimestamp(data, order):
-    data['timestamp'] = data['timestamp'].apply(lambda x: round(float(str(x)[:13]) / order) * order)
-    return data
+def retrieveSeries(data, length):
+    timeSeries = []
+    # Distinguish samples based on device
+    IDs = np.unique(data['ue_ident'])
+
+    for ID in IDs:
+        # Retrieving measures for the device
+        measures = pd.DataFrame(data.loc[data['ue_ident'] == ID])
+
+        index = 0
+        # Prevent index out of bounds
+        while index + length <= len(measures):
+            # Append a sequential number of measures based on the input length
+            timeSeries.append(measures.iloc[index:index+length])
+            # Move to the next series (it is a sliding windows mechanism so samples are repeated)
+            index += 1
+
+    return timeSeries
 
 def retrieveContinuousSeries(data, length, deltaTime):
     timeSeries = []
