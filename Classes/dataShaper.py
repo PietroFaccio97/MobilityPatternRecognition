@@ -62,3 +62,16 @@ def retrieveContinuousSeries(data, length, deltaTime):
                 i += 1
 
     return timeSeries
+
+# Prepare the measure series for the dataset
+def labelAndShapeSeries(data, label):
+    X = []
+    y = []
+
+    for series in data:
+        # Extracts only the features
+        X.append(series['phy_ul_pucch_rssi'])
+        # Match the series to their label
+        y.append(label)
+
+    return X, y
