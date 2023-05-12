@@ -82,17 +82,17 @@ for index, s in enumerate(samples):
 #timeSeriesStatic = dataShaper.retrieveContinuousSeries(data=static, length=5, deltaTime=100)
 #timeSeriesTrain = dataShaper.retrieveContinuousSeries(data=train, length=5, deltaTime=100)
 
-timeSeriesBus = dataShaper.retrieveSeries(data=bus, length=20)
-timeSeriesCar = dataShaper.retrieveSeries(data=car, length=20)
-timeSeriesPedestrian = dataShaper.retrieveSeries(data=pedestrian, length=20)
-timeSeriesStatic = dataShaper.retrieveSeries(data=static, length=20)
-timeSeriesTrain = dataShaper.retrieveSeries(data=train, length=20)
+timeSeriesBus = dataShaper.retrieveSeries(data=bus, length=10)
+#timeSeriesCar = dataShaper.retrieveSeries(data=car, length=10)
+timeSeriesPedestrian = dataShaper.retrieveSeries(data=pedestrian, length=10)
+#timeSeriesStatic = dataShaper.retrieveSeries(data=static, length=10)
+#timeSeriesTrain = dataShaper.retrieveSeries(data=train, length=10)
 
 busSize = len(timeSeriesBus)
-carSize = len(timeSeriesCar)
+#carSize = len(timeSeriesCar)
 pedestrianSize = len(timeSeriesPedestrian)
-staticSize = len(timeSeriesStatic)
-trainSize = len(timeSeriesTrain)
+#staticSize = len(timeSeriesStatic)
+#trainSize = len(timeSeriesTrain)
 
 objects = ('bus', 'car', 'pedestrian', 'static', 'train')
 y_pos = np.arange(len(objects))
@@ -109,8 +109,8 @@ plt.show()
 Xp, yp = dataShaper.labelAndShapeSeries(timeSeriesPedestrian, 'pedestrian')
 Xb, yb = dataShaper.labelAndShapeSeries(timeSeriesBus, 'bus')
 
-Xp = Xp[: -150000]
-yp = yp[: -150000]
+Xp = Xp[: -2300]
+yp = yp[: -2300]
 
 X = Xp + Xb
 y = yp + yb
@@ -135,7 +135,7 @@ model.add(Dense(y_train.shape[1], activation='softmax'))
 model.compile(
     loss='categorical_crossentropy',
     optimizer='adam',
-    metrics=[keras.metrics.Accuracy(), keras.metrics.Precision(), keras.metrics.Recall()]
+    metrics=[keras.metrics.Accuracy()]
 )
 
 history = model.fit(
