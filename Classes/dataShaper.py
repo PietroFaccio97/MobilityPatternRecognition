@@ -19,27 +19,29 @@ def retrieveSeries(data, length):
     for ID in IDs:
         # Retrieving measures for the device
         measures = pd.DataFrame(data.loc[data['ue_ident'] == ID])
-
         index = 0
         # Prevent index out of bounds
         while index + length <= len(measures):
-            # Append a sequential number of measures based on the input length
-            if checkContinuity(measures.iloc[index:index+length]):
-                timeSeries.append(measures.iloc[index:index+length])
-            # Move to the next series (it is a sliding windows mechanism so samples are repeated)
-            index += 1
-
+            # Check if the series contains time continuous measures
+            next_valid_index = checkContinuity(measures.iloc[index:index+length])
+            if next_valid_index == 0:
+                # Series is continuous, it is added
+                timeSeries.append(measures.iloc[index:index + length])
+                index += 1
+            else:
+                # There is a missing measure, we move after it
+                index += next_valid_index
     return timeSeries
 
 def checkContinuity(measures):
-    i = 0
-    while i < len(measures) - 1:
-        previous = measures.iloc[i:i+1]
-        follow = measures.iloc[i+1:i+2]
+    i = 1
+    while i < len(measures):
+        previous = measures.iloc[i-1:i]
+        follow = measures.iloc[i:i+1]
         if follow['timestamp'].values[0] != previous['timestamp'].values[0] + 100:
-            return False
+            return i
         i += 1
-    return True
+    return 0
 
 def retrieveSlidingSeries(data, length, deltaTime):
     timeSeries = []
@@ -108,13 +110,14 @@ def retrieveContinuousSeries(data, length, deltaTime):
     return timeSeries
 
 # Prepare the measure series for the dataset
-def labelAndShapeSeries(data, label):
+def labelAndShapeSeries(data, columns, label):
+    columns = columns[2:]
     X = []
     y = []
 
     for series in data:
         # Extracts only the features
-        X.append(series['phy_ul_pucch_rssi'])
+        X.append(series[columns])
         # Match the series to their label
         y.append(label)
 

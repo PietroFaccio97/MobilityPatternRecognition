@@ -67,7 +67,7 @@ class DataReader:
             else:
                 data.drop(data[abs(abs(avg) - abs(data[outlier])) > self.outlierThresholds[outlier]].index, inplace=True)
             # Reset index
-            data.reset_index(inplace=True)
+            #data.reset_index(inplace=True)
         return data
 
     def formatTimestamp(self, data):
