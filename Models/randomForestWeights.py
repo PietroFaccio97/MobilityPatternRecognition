@@ -1,15 +1,10 @@
-from Classes.dataReader import DataReader
-from Classes import dataShaper
-from Static.typeEnum import Paths
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
-from tensorflow import keras
-from keras.layers import SimpleRNN, Dense
-from sklearn.metrics import classification_report
+from Classes import dataShaper
+from Classes.dataReader import DataReader
+from Static.typeEnum import Paths
 
 # Columns to read
 core_features = ['ue_ident', 'timestamp']
@@ -43,6 +38,7 @@ outlierThresholds = {'bus': {'phy_ul_pucch_rssi': 50,
                              'phy_ul_pusch_rssi': 50,
                              'phy_ul_pucch_sinr': 30,
                              'phy_ul_pusch_sinr': 30}}
+#outliers = ['phy_ul_pucch_rssi', 'phy_ul_pusch_rssi', 'phy_ul_pucch_sinr', 'phy_ul_pusch_sinr']
 outliers = ['phy_ul_pusch_sinr', 'phy_ul_pucch_sinr', 'phy_ul_mcs', 'mac_dl_cqi_offset', 'mac_ul_snr_offset', 'phy_ul_pusch_rssi', 'phy_ul_pucch_rssi', 'phy_ul_pucch_ni', 'phy_ul_turbo_iters', 'phy_ul_n_samples', 'phy_ul_n_samples_pucch', 'phy_dl_mcs', 'phy_dl_n_samples']
 
 sequenceLength = 9
@@ -79,6 +75,7 @@ Xt, yt = dataShaper.labelAndShapeSeries(timeSeriesTrain, columns, 'train')
 
 # Obtain the shortest length
 l = min(len(Xb), len(Xc), len(Xp), len(Xs), len(Xt))
+
 # Cut series length to the shortest
 Xb = Xb[:l]
 yb = yb[:l]
@@ -97,50 +94,45 @@ y = yb + yc + yp + ys + yt
 X = np.asarray(X)
 y = np.asarray(y).reshape(-1, 1)
 
-# Split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, shuffle=True)
+# Create train data for the model
+decomposed_X = []
+decomposed_y = []
+#TODO use some particular metric instead of flat measures?
+# e.g. calculate the mean and deviation of each feature measure among series
+# Iterates over time series to append each single measure
+for index, series in enumerate(X):
+    for measure in series:
+        decomposed_X.append(measure)
+        # Label the measures with the target class of the time series
+        decomposed_y.append(y[index])
 
-# Encode labels
-enc = OneHotEncoder(handle_unknown='ignore', sparse=False)
-enc = enc.fit(y_train)
-y_train = enc.transform(y_train)
-y_test = enc.transform(y_test)
+# Convert lists to numpy arrays
+X_fit = np.array(decomposed_X)
+y_fit = np.array(decomposed_y)
 
-# Define model architecture
-model = keras.Sequential()
-model.add(SimpleRNN(20, return_sequences=True, input_shape=[None, len(features)]))
-model.add(SimpleRNN(20, return_sequences=True))
-#model.add(SimpleRNN(20, return_sequences=True))
-#model.add(SimpleRNN(20, return_sequences=True))
-model.add(SimpleRNN(20))
-model.add(Dense(5, activation='softmax'))
+# Train a random forest classifier
+model = RandomForestClassifier()
+model.fit(X_fit, y_fit)
 
-model.compile(
-    loss='categorical_crossentropy',
-    optimizer='adam',
-    metrics=['acc']
-)
+# Retrieve feature importance scores
+feature_importance = model.feature_importances_
 
-history = model.fit(
-    X_train, y_train,
-    epochs=100,
-    validation_split=0.1,
-)
+# Sort features based on importance scores
+sorted_features = sorted(zip(feature_importance, range(len(feature_importance))), reverse=True)
 
-# list all data in history
-print(history.history.keys())
+# Extract feature importance and feature indices
+sorted_importance, sorted_indices = zip(*sorted_features)
 
-y_pred = model.predict(X_test)
+# Print feature importance scores
+for importance, feature_index in sorted_features:
+    feature_name = features[feature_index]
+    print(f"Feature {feature_name}: Importance = {importance}")
 
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['acc', 'val_acc'], loc='upper left')
+# Plot the feature weights
+plt.figure(figsize=(10, 6))
+plt.bar(range(len(sorted_importance)), sorted_importance, align='center')
+plt.xticks(range(len(sorted_importance)), [features[i] for i in sorted_indices], rotation=90)
+plt.ylabel('Feature Weight')
+plt.title('Feature Weights')
+plt.tight_layout()
 plt.show()
-
-val_pred = np.argmax(y_pred, axis=1)
-val_test = np.argmax(y_test, axis=1)
-print(classification_report(val_test, val_pred))
-print()

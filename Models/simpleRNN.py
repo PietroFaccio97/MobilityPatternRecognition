@@ -48,11 +48,11 @@ timeSeriesTrain = dataShaper.retrieveSeries(data=train, length=10)
 #  -input_shape[none, 1] -> no need to specify the squences length
 #  -turn to deep RNN -> add layers
 # Create series label
-Xb, yb = dataShaper.labelAndShapeSeries(timeSeriesBus, 'bus')
-Xc, yc = dataShaper.labelAndShapeSeries(timeSeriesCar, 'car')
-Xp, yp = dataShaper.labelAndShapeSeries(timeSeriesPedestrian, 'pedestrian')
-Xs, ys = dataShaper.labelAndShapeSeries(timeSeriesStatic, 'static')
-Xt, yt = dataShaper.labelAndShapeSeries(timeSeriesTrain, 'train')
+Xb, yb = dataShaper.labelAndShapeSeries(timeSeriesBus, columns, 'bus')
+Xc, yc = dataShaper.labelAndShapeSeries(timeSeriesCar, columns, 'car')
+Xp, yp = dataShaper.labelAndShapeSeries(timeSeriesPedestrian, columns, 'pedestrian')
+Xs, ys = dataShaper.labelAndShapeSeries(timeSeriesStatic, columns, 'static')
+Xt, yt = dataShaper.labelAndShapeSeries(timeSeriesTrain, columns, 'train')
 
 # Obtain the shortest length
 l = min(len(Xb), len(Xc), len(Xp), len(Xs), len(Xt))

@@ -2,7 +2,6 @@ from Classes.dataReader import DataReader
 from Classes import dataShaper
 from Static.typeEnum import Paths
 
-import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -44,11 +43,11 @@ timeSeriesStatic = dataShaper.retrieveSeries(data=static, length=10)
 timeSeriesTrain = dataShaper.retrieveSeries(data=train, length=10)
 
 # Create series label
-Xb, yb = dataShaper.labelAndShapeSeries(timeSeriesBus, 'bus')
-Xc, yc = dataShaper.labelAndShapeSeries(timeSeriesCar, 'car')
-Xp, yp = dataShaper.labelAndShapeSeries(timeSeriesPedestrian, 'pedestrian')
-Xs, ys = dataShaper.labelAndShapeSeries(timeSeriesStatic, 'static')
-Xt, yt = dataShaper.labelAndShapeSeries(timeSeriesTrain, 'train')
+Xb, yb = dataShaper.labelAndShapeSeries(timeSeriesBus, columns, 'bus')
+Xc, yc = dataShaper.labelAndShapeSeries(timeSeriesCar, columns, 'car')
+Xp, yp = dataShaper.labelAndShapeSeries(timeSeriesPedestrian, columns, 'pedestrian')
+Xs, ys = dataShaper.labelAndShapeSeries(timeSeriesStatic, columns, 'static')
+Xt, yt = dataShaper.labelAndShapeSeries(timeSeriesTrain, columns, 'train')
 
 # Obtain the shortest length
 l = min(len(Xb), len(Xc), len(Xp), len(Xs), len(Xt))

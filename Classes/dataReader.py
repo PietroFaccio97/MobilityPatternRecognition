@@ -63,9 +63,11 @@ class DataReader:
             avg = data[outlier].median()
             # Remove values far from the average (tune threshold to adjust)
             if pattern is not None:
-                data.drop(data[abs(abs(avg) - abs(data[outlier])) > self.outlierThresholds[pattern][outlier]].index, inplace=True)
+                if outlier in self.outlierThresholds[pattern]:
+                    data.drop(data[abs(abs(avg) - abs(data[outlier])) > self.outlierThresholds[pattern][outlier]].index, inplace=True)
             else:
-                data.drop(data[abs(abs(avg) - abs(data[outlier])) > self.outlierThresholds[outlier]].index, inplace=True)
+                if outlier in self.outlierThresholds[pattern]:
+                    data.drop(data[abs(abs(avg) - abs(data[outlier])) > self.outlierThresholds[outlier]].index, inplace=True)
             # Reset index
             #data.reset_index(inplace=True)
         return data
