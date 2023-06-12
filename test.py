@@ -128,7 +128,7 @@ for c in cut:
 
         history = model.fit(
             X_train, y_train,
-            epochs=50,
+            epochs=10,
             batch_size=32,
             validation_split=0.1,
             shuffle=False

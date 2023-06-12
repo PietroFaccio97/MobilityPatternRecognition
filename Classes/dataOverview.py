@@ -12,7 +12,11 @@ columns = ['ue_ident', 'timestamp', 'phy_ul_pucch_rssi', 'phy_ul_pucch_rssi']
 ascendingFlags = [True, True, True, True]
 patterns = [Paths.bus, Paths.car, Paths.pedestrian, Paths.static, Paths.train]
 
-reader = DataReader(columns, patterns)
+#Tune thresholds for outliers cut off based on the feature
+outlierThresholds = {'bus': {'phy_ul_pucch_rssi': 50}, 'car': {'phy_ul_pucch_rssi': 50}, 'pedestrian': {'phy_ul_pucch_rssi': 50}, 'static': {'phy_ul_pucch_rssi': 50}, 'train': {'phy_ul_pucch_rssi': 50}}
+outliers = ['phy_ul_pucch_rssi']
+
+reader = DataReader(columns, patterns, outliers, outlierThresholds)
 
 bus = reader.retrievePatternData(Paths.bus)
 car = reader.retrievePatternData(Paths.car)
@@ -45,12 +49,13 @@ plt.show()
 
 # Plot samples
 sampleBus = bus[bus['ue_ident'] == list(Counter(bus['ue_ident']).keys())[0]]
-sampleCar = car[car['ue_ident'] == list(Counter(car['ue_ident']).keys())[33]]
-samplePedestrian = pedestrian[pedestrian['ue_ident'] == list(Counter(pedestrian['ue_ident']).keys())[49]]
-sampleStatic = static[static['ue_ident'] == list(Counter(static['ue_ident']).keys())[60]]
-sampleTrain = train[train['ue_ident'] == list(Counter(train['ue_ident']).keys())[27]]
+sampleCar = car[car['ue_ident'] == list(Counter(car['ue_ident']).keys())[0]]
+samplePedestrian = pedestrian[pedestrian['ue_ident'] == list(Counter(pedestrian['ue_ident']).keys())[0]]
+sampleStatic = static[static['ue_ident'] == list(Counter(static['ue_ident']).keys())[0]]
+sampleTrain = train[train['ue_ident'] == list(Counter(train['ue_ident']).keys())[0]]
 
 samples = [sampleBus, sampleCar, samplePedestrian, sampleStatic, sampleTrain]
+#samples = [bus, car, pedestrian, static, train]
 titles = ['bus', 'car', 'pedestrian', 'static', 'train']
 colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
 
@@ -64,11 +69,12 @@ for index, s in enumerate(samples):
     plt.title(titles[index])
     plt.show()
 
-timeSeriesBus = dataShaper.retrieveContinuousSeries(data=bus, length=5, deltaTime=100)
-timeSeriesCar = dataShaper.retrieveContinuousSeries(data=car, length=5, deltaTime=100)
-timeSeriesPedestrian = dataShaper.retrieveContinuousSeries(data=pedestrian, length=5, deltaTime=100)
-timeSeriesStatic = dataShaper.retrieveContinuousSeries(data=static, length=5, deltaTime=100)
-timeSeriesTrain = dataShaper.retrieveContinuousSeries(data=train, length=5, deltaTime=100)
+# Retrieve time series from data
+timeSeriesBus = dataShaper.retrieveSeries(data=bus, length=10)
+timeSeriesCar = dataShaper.retrieveSeries(data=car, length=10)
+timeSeriesPedestrian = dataShaper.retrieveSeries(data=pedestrian, length=10)
+timeSeriesStatic = dataShaper.retrieveSeries(data=static, length=10)
+timeSeriesTrain = dataShaper.retrieveSeries(data=train, length=10)
 
 busSize = len(timeSeriesBus)
 carSize = len(timeSeriesCar)
@@ -82,6 +88,6 @@ sizes = [busSize, carSize, pedestrianSize, staticSize, trainSize]
 
 plt.bar(y_pos, sizes, align='center', alpha=0.5)
 plt.xticks(y_pos, objects)
-plt.ylabel('Number of devices tracked')
+plt.ylabel('Number of series extracted')
 plt.title('Pattern')
 plt.show()
